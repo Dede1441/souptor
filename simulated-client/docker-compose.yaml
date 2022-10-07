@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  client-souptor01:
+    image: polinux/snmpd
+    restart: unless-stopped
+    ports:
+      - 161:161
+    volumes:
+      - ./snmpd.conf:/etc/snmpd/snmpd.conf:ro
+  client-souptor02:
+    image: polinux/snmpd
+    restart: unless-stopped
+    ports:
+      - 162:161
+    volumes:
+      - ./snmpd.conf:/etc/snmpd/snmpd.conf:ro
