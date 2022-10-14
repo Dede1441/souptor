@@ -10,9 +10,10 @@ def interrogation_api_list() :
     headers = { 'Accept': 'application/json', 'Authorization' : 'Token c4bd47910dd422220be8aee15404faf907fed92e'    }
     url = "http://127.0.0.1:8000/api/service/all/"
     call = requests.get(url ,headers=headers)
-    list_equipements=json.loads(call.text)
+
+    list_equipements=call.json()
+
     return(list_equipements)
-    print('recuperation list equipements')
 
 
 def interrogation_equipmt(ip,oid,community) :
@@ -30,22 +31,31 @@ def interrogation_equipmt(ip,oid,community) :
     )
 
     for oid, val in varBinds:
-        return(id, val.prettyPrint())
+        return(val.prettyPrint())
 
 def envoi_donnees(list_equipements):
-    for equipements in list_equipements :
-        oid=equipements[0]['identifier']
-        ip=equipements[0]['ip']
-        community=equipements[0]['community']
-        id=equipements[0]['id']
-        result_loc=interrogation_equipmt(id,ip,oid,community)
-        result_glob=merge(result_glob, result_loc)
+    valeurs_snmp={}
+    for equipement in list_equipements :
+        print(equipement)
 
-    #envoi en json de result_glob
+        oid=equipement['identifier']
+        ip=equipement['ip']
+        community=equipement['community']
+        id=equipement['id']
 
+        result_loc=interrogation_equipmt(ip,oid,community)
+        valeurs_snmp[id]=result_loc
+        print(valeurs_snmp[id])        
+
+
+        #result_glob=merge(result_glob, id, result_loc)
+
+        #result vide/error stop avec un error code 
+        #envoi en json de result_glob vers api web -> id, valeur
+            #return ok
+    print(valeurs_snmp)
     return('ok')
 
-def main():
-    list_equipements = interrogation_api_list()
-    result_envoie = envoi_donnees(list_equipements)
-    return (result_envoie)
+list_equipements = interrogation_api_list()
+result_envoie = envoi_donnees(list_equipements)
+#return (result_envoie)
