@@ -47,9 +47,6 @@ def envoi_donnees(list_equipements):
         valeurs_snmp[id]=result_loc
         print(valeurs_snmp[id])        
 
-
-        #result_glob=merge(result_glob, id, result_loc)
-
         #result vide/error stop avec un error code 
         #envoi en json de result_glob vers api web -> id, valeur
             #return ok
