@@ -1,0 +1,14 @@
+version: '3.2'
+
+services:
+  collektor:
+    container_name: souptor-collektor
+    image: souptor-collektor:latest
+    restart: unless-stopped
+    networks:
+      - souptor
+
+networks:
+  souptor:
+    external:
+      name: souptor

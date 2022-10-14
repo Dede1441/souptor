@@ -1,14 +1,17 @@
 import sys
 import json
 import requests
+import time
+import datetime
 from pprint import pprint
 from jsonmerge import merge
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 
 
+
 def interrogation_api_list() :
     headers = { 'Accept': 'application/json', 'Authorization' : 'Token c4bd47910dd422220be8aee15404faf907fed92e'    }
-    url = "http://127.0.0.1:8000/api/service/all/"
+    url = "http://172.18.1.100:8001/api/service/all/"
     call = requests.get(url ,headers=headers)
 
     list_equipements=call.json()
@@ -35,6 +38,12 @@ def interrogation_equipmt(ip,oid,community) :
 
 def envoi_donnees(list_equipements):
     valeurs_snmp={}
+    now = datetime.datetime.now()
+
+    with open('collektor.txt', 'a') as f:
+            f.write('\n' + now.strftime("%Y-%m-%d %H:%M:%S"))
+
+
     for equipement in list_equipements :
         print(equipement)
 
@@ -45,14 +54,20 @@ def envoi_donnees(list_equipements):
 
         result_loc=interrogation_equipmt(ip,oid,community)
         valeurs_snmp[id]=result_loc
-        print(valeurs_snmp[id])        
+        
+        #print(valeurs_snmp[id])  
+
+        with open('collektor.txt', 'a') as f:
+            f.write('\n' + valeurs_snmp[id])
 
         #result vide/error stop avec un error code 
         #envoi en json de result_glob vers api web -> id, valeur
             #return ok
-    print(valeurs_snmp)
+    #print(valeurs_snmp)
     return('ok')
 
-list_equipements = interrogation_api_list()
-result_envoie = envoi_donnees(list_equipements)
-#return (result_envoie)
+while True:
+    list_equipements = interrogation_api_list()
+    result_envoie = envoi_donnees(list_equipements)
+    time.sleep(60)
+    #return (result_envoie)

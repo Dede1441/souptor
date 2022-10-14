@@ -1,17 +1,21 @@
-version: '3'
+version: '3.2'
 
 services:
   client-souptor01:
-    image: polinux/snmpd
+    container_name: client-souptor01
+    image: souptor:latest
     restart: unless-stopped
-    ports:
-      - 161:161
-    volumes:
-      - ./snmpd.conf:/etc/snmpd/snmpd.conf:ro
+    networks:
+      - souptor
+
   client-souptor02:
-    image: polinux/snmpd
+    container_name: client-souptor02
+    image: souptor:latest
     restart: unless-stopped
-    ports:
-      - 162:161
-    volumes:
-      - ./snmpd.conf:/etc/snmpd/snmpd.conf:ro
+    networks:
+      - souptor
+
+networks:
+  souptor:
+    external:
+      name: souptor
