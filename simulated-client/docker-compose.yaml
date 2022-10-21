@@ -7,6 +7,8 @@ services:
     restart: unless-stopped
     networks:
       - souptor
+    ports:
+      - "162:161/udp"
 
   client-souptor02:
     container_name: client-souptor02
@@ -14,6 +16,8 @@ services:
     restart: unless-stopped
     networks:
       - souptor
+    ports:
+      - "163:161/udp"
 
 networks:
   souptor:

@@ -12,6 +12,7 @@ from pysnmp.entity.rfc3413.oneliner import cmdgen
 def interrogation_api_list() :
     headers = { 'Accept': 'application/json', 'Authorization' : 'Token c4bd47910dd422220be8aee15404faf907fed92e'    }
     url = "http://172.18.1.100:8001/api/service/all/"
+    #url = "http://172.18.1.100:8001/api/services"
     call = requests.get(url ,headers=headers)
 
     list_equipements=call.json()
@@ -19,7 +20,7 @@ def interrogation_api_list() :
     return(list_equipements)
 
 
-def interrogation_equipmt(ip,oid,community) :
+def interrogation_equipmt(ip,port,oid,community) :
     #oid load '1.3.6.1.4.1.2021.10.1.3.1'
 
     auth = cmdgen.CommunityData(community)
@@ -28,7 +29,7 @@ def interrogation_equipmt(ip,oid,community) :
 
     errorIndication, errorStatus, errorIndex, varBinds = cmdGen.getCmd(
         auth,
-        cmdgen.UdpTransportTarget((ip, 161)),
+        cmdgen.UdpTransportTarget((ip,port)),
         cmdgen.MibVariable(oid),
         lookupMib=False,
     )
@@ -40,6 +41,7 @@ def envoi_donnees(list_equipements):
     valeurs_snmp={}
     now = datetime.datetime.now()
 
+    
     with open('collektor.txt', 'a') as f:
             f.write('\n' + now.strftime("%Y-%m-%d %H:%M:%S"))
 
@@ -51,23 +53,28 @@ def envoi_donnees(list_equipements):
         ip=equipement['ip']
         community=equipement['community']
         id=equipement['id']
-
-        result_loc=interrogation_equipmt(ip,oid,community)
+        port=equipement['port']
+        url='' + id + ''
+        result_loc=interrogation_equipmt(ip,port,oid,community)
         valeurs_snmp[id]=result_loc
-        
-        #print(valeurs_snmp[id])  
+        print(result_loc)
+        if not valeurs_snmp[id] or valeurs_snmp[id] is None:
+            print("error, empty string")  
+            
+            valeurs_snmp[id]='error'
+            
+            #with open('collektor.txt', 'a') as f:
+            #    f.write('\n' + 'error')
+        else:
+            print(valeurs_snmp[id])  
 
-        with open('collektor.txt', 'a') as f:
-            f.write('\n' + valeurs_snmp[id])
+            #with open('collektor.txt', 'a') as f:
+            #    f.write('\n' + valeurs_snmp[id])
+        call = requests.post(url , data=json.dumps(valeurs_snmp[id]), headers=headers)
 
-        #result vide/error stop avec un error code 
-        #envoi en json de result_glob vers api web -> id, valeur
-            #return ok
-    #print(valeurs_snmp)
-    return('ok')
+    return()
 
-while True:
-    list_equipements = interrogation_api_list()
-    result_envoie = envoi_donnees(list_equipements)
-    time.sleep(60)
-    #return (result_envoie)
+#while True:
+#    list_equipements = interrogation_api_list()
+#    result_envoie = envoi_donnees(list_equipements)
+#    time.sleep(60)
