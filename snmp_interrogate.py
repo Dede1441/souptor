@@ -6,13 +6,15 @@ import datetime
 from pprint import pprint
 from jsonmerge import merge
 from pysnmp.entity.rfc3413.oneliner import cmdgen
+from os import environ
 
-
+URL_APP = environ.get("URL_APP")
 
 def interrogation_api_list() :
     headers = { 'Accept': 'application/json', 'Authorization' : 'Token c4bd47910dd422220be8aee15404faf907fed92e'    }
-    url = "http://172.18.1.100:8001/api/service/all/"
-    #url = "http://172.18.1.100:8001/api/services"
+
+    url = f'http://{URL_APP}:8001/api/services'
+    print(url)
     call = requests.get(url ,headers=headers)
 
     list_equipements=call.json()
@@ -54,27 +56,27 @@ def envoi_donnees(list_equipements):
         community=equipement['community']
         id=equipement['id']
         port=equipement['port']
-        url='' + id + ''
-        result_loc=interrogation_equipmt(ip,port,oid,community)
-        valeurs_snmp[id]=result_loc
-        print(result_loc)
-        if not valeurs_snmp[id] or valeurs_snmp[id] is None:
-            print("error, empty string")  
-            
-            valeurs_snmp[id]='error'
-            
-            #with open('collektor.txt', 'a') as f:
-            #    f.write('\n' + 'error')
-        else:
-            print(valeurs_snmp[id])  
 
-            #with open('collektor.txt', 'a') as f:
-            #    f.write('\n' + valeurs_snmp[id])
-        call = requests.post(url , data=json.dumps(valeurs_snmp[id]), headers=headers)
+        url=f'http://{URL_APP}:8001/api/transaction/{id}/'
+        headers = { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization' : 'Token c4bd47910dd422220be8aee15404faf907fed92e'    }
+
+        valeurs_snmp['value']=interrogation_equipmt(ip,port,oid,community)
+
+        if not valeurs_snmp['value'] or valeurs_snmp['value'] is None: 
+            valeurs_snmp['value']='error'
+
+        else:
+            print(valeurs_snmp['value'])  
+
+        try:
+            requests.post(url , data=json.dumps(valeurs_snmp), headers=headers)
+            
+        except:
+            print('error')
 
     return()
 
-#while True:
-#    list_equipements = interrogation_api_list()
-#    result_envoie = envoi_donnees(list_equipements)
-#    time.sleep(60)
+while True:
+    list_equipements = interrogation_api_list()
+    result_envoie = envoi_donnees(list_equipements)
+    time.sleep(60)
