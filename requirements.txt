@@ -1,4 +1,4 @@
 pysnmp
 requests
 jsonmerge
-dotenv
+python-dotenv
