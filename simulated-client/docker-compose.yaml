@@ -20,6 +20,5 @@ services:
       - "163:161/udp"
 
 networks:
-  souptor:
-    external:
-      name: souptor
+  souptor-client:
+    external: true

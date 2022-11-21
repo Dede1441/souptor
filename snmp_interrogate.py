@@ -9,11 +9,12 @@ from pysnmp.entity.rfc3413.oneliner import cmdgen
 from os import environ
 
 URL_APP = environ.get("URL_APP")
+TOKEN_APP = environ.get("TOKEN_APP")
 
 def interrogation_api_list() :
-    headers = { 'Accept': 'application/json', 'Authorization' : 'Token c4bd47910dd422220be8aee15404faf907fed92e'    }
+    headers = { 'Accept': 'application/json', 'Authorization' : f'Token {TOKEN_APP}'    }
 
-    url = f'http://{URL_APP}:8001/api/services'
+    url = f'{URL_APP}/api/services'
     print(url)
     call = requests.get(url ,headers=headers)
 
@@ -47,32 +48,32 @@ def envoi_donnees(list_equipements):
     with open('collektor.txt', 'a') as f:
             f.write('\n' + now.strftime("%Y-%m-%d %H:%M:%S"))
 
+    if len(list_equipements) != 0:
+        for equipement in list_equipements :
+            print(equipement)
 
-    for equipement in list_equipements :
-        print(equipement)
+            oid=equipement['identifier']
+            ip=equipement['ip']
+            community=equipement['community']
+            id=equipement['id']
+            port=equipement['port']
 
-        oid=equipement['identifier']
-        ip=equipement['ip']
-        community=equipement['community']
-        id=equipement['id']
-        port=equipement['port']
+            url=f'{URL_APP}/api/transaction/{id}/'
+            headers = { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization' : 'Token c4bd47910dd422220be8aee15404faf907fed92e'    }
 
-        url=f'http://{URL_APP}:8001/api/transaction/{id}/'
-        headers = { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization' : 'Token c4bd47910dd422220be8aee15404faf907fed92e'    }
+            valeurs_snmp['value']=interrogation_equipmt(ip,port,oid,community)
 
-        valeurs_snmp['value']=interrogation_equipmt(ip,port,oid,community)
+            if not valeurs_snmp['value'] or valeurs_snmp['value'] is None:
+                valeurs_snmp['value']='error'
 
-        if not valeurs_snmp['value'] or valeurs_snmp['value'] is None: 
-            valeurs_snmp['value']='error'
+            else:
+                print(valeurs_snmp['value'])
 
-        else:
-            print(valeurs_snmp['value'])  
+            try:
+                requests.post(url , data=json.dumps(valeurs_snmp), headers=headers)
 
-        try:
-            requests.post(url , data=json.dumps(valeurs_snmp), headers=headers)
-            
-        except:
-            print('error')
+            except:
+                print('error')
 
     return()
 

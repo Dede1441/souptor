@@ -5,10 +5,16 @@ services:
     container_name: souptor-collektor
     image: souptor-collektor:latest
     restart: unless-stopped
+    environment:
+      - URL_APP=${URL_APP}
+      - TOKEN_APP=${TOKEN_APP}
     networks:
+      - souptor-client
       - souptor
 
+
 networks:
+  souptor-client:
+    external: true
   souptor:
-    external:
-      name: souptor
+    external: true
