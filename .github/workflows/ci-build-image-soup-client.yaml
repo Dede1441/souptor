@@ -2,7 +2,7 @@ name: Create and publish a Docker image soup-client
 
 on:
   push:
-    branches: ['master']
+    branches: ['main']
 
 env:
   REGISTRY: ghcr.io
