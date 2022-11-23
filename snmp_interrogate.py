@@ -59,7 +59,7 @@ def envoi_donnees(list_equipements):
             port=equipement['port']
 
             url=f'{URL_APP}/api/transaction/{id}/'
-            headers = { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization' : 'Token c4bd47910dd422220be8aee15404faf907fed92e'    }
+            headers = { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization' : f'Token {TOKEN_APP}'    }
 
             valeurs_snmp['value']=interrogation_equipmt(ip,port,oid,community)
 
